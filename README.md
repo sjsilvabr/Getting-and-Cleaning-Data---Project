@@ -17,8 +17,8 @@ The goal of the analysis is to provide a tidy data set with the average of the m
 The script has been written in one function called tidy_DataSet() stored on the file run_analysis.R. 
 The package dplyr has been used, for this it has been loaded in the function.
 
-tidy_DataSet <- function(){
-      library(dplyr)
+      tidy_DataSet <- function(){
+            library(dplyr)
       
 #### Load and Merge the data
 
@@ -132,7 +132,7 @@ The activites reference numbers could be removed, as they are no longer required
 
 Up to here all the required data is in the merged data set 'vMergedData'. It is required now to name the variables in the data frame.
 
-Previously the measurements labels have been loaded from the features data file, filtered and stored into the vector 'vFeatLbl'. It contains the element 'activity' and all the features names, which are going to be used to rename the variables in the merged data set.
+Previously the measurements labels have been loaded from the features data file, filtered and stored into the vector 'vFeatLbl'. It contains the element 'activity' and the required features names, which are going to be used to rename the variables in the merged data set 'vMergeData'.
 
       names(vMergeData) <- vFeatLbl
 
@@ -155,7 +155,7 @@ The third side effect, as matrix, the activities have been defined as row names,
       vSummaryData$activity <- row.names(vSummaryData)
       vSummaryData <- select(vSummaryData, activity, 1:(ncol(vSummaryData)-1))
 
-#### Write the Summary Data Set as file
+#### Write the Summary Data Set into a file
 
 Finally the tidy data set is ready. The last step is write it into a file, excluding the row names. The resulting file with the Summary Data Set is called 'SummaryData.csv' and the function saves it in the current working directory.
 
