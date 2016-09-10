@@ -1,5 +1,12 @@
-# Getting-and-Cleaning-Data---Project
+# Getting and Cleaning Data - Course Project
 Repository for the Course Project - Getting and Cleaning Data
+
+This repository contains the following files:
+
+1. README.md - this file, contains the explanation of the analysis done via script in R.
+2. CodeBook.md - it contains the description for the data sets and variables.
+3. run_analysis.R - the script in R.
+4. SummaryData.csv - the tidy data set with the average for the variables, result of the analysis.
 
 ### Introduction
 The purpose of this document is to explain the analysis done via script in R, as Course Project for the Getting and Cleaning Data.
@@ -12,15 +19,24 @@ More information about the data set is available in the Code Book (CodeBook.md)
 
 The goal of the analysis is to provide a tidy data set with the average of the measurements on the mean and standard deviation from the original data set.
 
-### The analysis
+### Information about the script
 
-The script has been written in one function called tidy_DataSet() stored on the file run_analysis.R. 
-The package dplyr has been used, for this it has been loaded in the function.
+The script has been written in one function called 'tidy_DataSet()', stored into the file run_analysis.R, a copy has been provided in this repository. After saving the file locally, it should be loaded via function 'source()' directly in R console.
+
+      source('run_analysis.R')
+
+From this point the function 'tidy_DataSet()' is available for use.
+
+      tidy_DataSet()
+      
+The package dplyr has been used in this script, it has been loaded in the function.
 
       tidy_DataSet <- function(){
             library(dplyr)
-      
-#### Load and Merge the data
+
+### The Analysis      
+
+#### Load and merge the data
 
 Initially it has been checked if the required data set is already available, if it is not, the data set should be downloaded from the web using the given URL and stored in a accessable unit, the current working directory has been choosen (./). The original data set is in ZIP format.
 
@@ -89,7 +105,7 @@ To extract the required variables from the merged data set, a vector called 'vFe
       vFeatRef <- 'activity'
       vFeatRef[2:(nrow(vFeatLblData)+1)] <- vFeatLblData$V1
 
-The second reshaping ment to allow the features names to be used as variable names for the measurements in the merged data set 'vMergeData'. As the features names contain characteres which are not valid in variable names, the not valid characters have been removed from them.
+The second reshaping meant to allow the features names to be used as variable names for the measurements in the merged data set 'vMergeData'. As the features names contain characteres which are not valid in variable names, the not valid characters have been removed from them.
 
       vFeatLblData <- vFeatLblData %>% mutate(V2 = gsub('-','',V2)) %>%
                                        mutate(V2 = gsub(',','',V2)) %>%
