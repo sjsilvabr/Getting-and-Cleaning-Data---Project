@@ -193,12 +193,12 @@ To have the variables *activity* and *subject* as the first variables, the summa
 
 #### Write the Summary Data Set into a file
 
-Finally the tidy data set is ready. The last step is write it into a file, excluding the row names. The resulting file with the Summary Data Set is called *SummaryData.csv* and the function saves it in the current working directory.
+Finally the tidy data set is ready. The last step is write it into a file, excluding the row names. The resulting file with the Summary Data Set is called *SummaryData.txt* and the function saves it in the current working directory.
 
-      write.csv(vSummaryData,'./SummaryData.csv', row.names = FALSE)
+      write.table(vSummaryData,'./SummaryData.txt', row.names = FALSE)
 
 #### For further analysis
 
-For further analysis of the Summary Data Set, the function *read.csv()* can be used to load the file *SummaryData.csv*.
+For further analysis of the Summary Data Set, the function *read.table()* can be used to load the file *SummaryData.txt*.
 
-      read.csv('./SummaryData.csv')
+      read.table('./SummaryData.csv', header = TRUE)
