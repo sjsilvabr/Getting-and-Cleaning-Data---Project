@@ -197,7 +197,8 @@ Finally the tidy data set is ready. The last step is write it into a file, exclu
 
       write.csv(vSummaryData,'./SummaryData.csv', row.names = FALSE)
 
-For the user to be able to read the Summary Data Set, the function *read.csv()* can be used.
+#### For further analysis
+
+For further analysis of the Summary Data Set, the function *read.csv()* can be used to load the file *SummaryData.csv*.
 
       read.csv('./SummaryData.csv')
-
