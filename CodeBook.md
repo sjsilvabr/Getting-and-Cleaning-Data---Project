@@ -120,7 +120,7 @@ In summary what has been done:
 9. The activities in the merged data set have been updated accordingly with the activities labels
 10. The variables (measurements) in the merged data set have been renamed according to the features labels
 11. A new tidy data set has been created containing the activies, subjects and the average of the measurements
-12. The new tidy data set has been written in a CSV file
+12. The new tidy data set has been written in a TXT file
 
 ### Tidy data set
 
