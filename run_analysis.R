@@ -27,9 +27,17 @@ tidy_DataSet <- function(){
       vTrainActFile <- unz(vZipPath, 'UCI HAR Dataset/train/y_train.txt')
       vTrainActData <- read.table(vTrainActFile)
 
+      # Load the Training Subjects from the ZIP file
+      vTrainSubjFile <- unz(vZipPath, 'UCI HAR Dataset/train/subject_train.txt')
+      vTrainSubjData <- read.table(vTrainSubjFile)
+      
       # Create the variable activity in the Training data frame
       # with the values from Training Activities data frame
       vTrainSetData$activity <- vTrainActData$V1
+      
+      # Create the variable subject in the Training data frame
+      # with the values from Training Subjects data frame
+      vTrainSetData$subject <- vTrainSubjData$V1
 
       # Load the Test data set from the ZIP file
       vTestSetFile <- unz(vZipPath, 'UCI HAR Dataset/test/X_test.txt')
@@ -39,10 +47,18 @@ tidy_DataSet <- function(){
       vTestActFile <- unz(vZipPath, 'UCI HAR Dataset/test/y_test.txt')
       vTestActData <- read.table(vTestActFile)
       
+      # Load the Test Subjects from the ZIP file
+      vTestSubjFile <- unz(vZipPath, 'UCI HAR Dataset/test/subject_test.txt')
+      vTestSubjData <- read.table(vTestSubjFile)
+      
       # Create the variable activity in the Test data frame
       # with the values from Test Activities data frame
       vTestSetData$activity <- vTestActData$V1
 
+      # Create the variable subject in the Test data frame
+      # with the values from Test Subjects data frame
+      vTestSetData$subject <- vTestSubjData$V1
+      
       # Merge the Training and Test data frames into a new data frame
       vMergeData <- merge(vTrainSetData, vTestSetData, all=TRUE)
 
@@ -65,8 +81,8 @@ tidy_DataSet <- function(){
 
       # Define a vector with the Features Labels (Measurements) references 
       # (V1, V2, ...) from the Features Labels data frame
-      vFeatRef <- 'activity'
-      vFeatRef[2:(nrow(vFeatLblData)+1)] <- vFeatLblData$V1
+      vFeatRef <- c('activity', 'subject')
+      vFeatRef[3:(nrow(vFeatLblData)+2)] <- vFeatLblData$V1
       
       # Adjust the Fetures Lables (V2) to be variable names
       # removing not valid characters
@@ -79,8 +95,8 @@ tidy_DataSet <- function(){
       
       # Define a vector with the Features Lables (Measurements)
       # from the Features Labels data frame
-      vFeatLbl <- 'activity'
-      vFeatLbl[2:(nrow(vFeatLblData)+1)] <- as.character(vFeatLblData$V2)      
+      vFeatLbl <- c('activity', 'subject')
+      vFeatLbl[3:(nrow(vFeatLblData)+2)] <- as.character(vFeatLblData$V2)      
 
       # Extract the Features (Measurements) on the mean and standard deviation
       # from the Merged data frame using the Features Lables references
@@ -102,19 +118,27 @@ tidy_DataSet <- function(){
       # Change the variable names (Measurements) in the Merged data frame 
       # using the Features Labels
       names(vMergeData) <- vFeatLbl
-      
+
       # Create an independet data set with the average of all measurements
-      # Calculate the average for each measurement
-      vSummaryData <- sapply(split(vMergeData,vMergeData$activity),
-                             function(w) colMeans(w[,2:(ncol(w)-1)])
+      # Calculate the average for each measurement by activity and subject
+      vSummaryData <- sapply(split(vMergeData,
+                                   list(vMergeData$activity,vMergeData$subject)
+                                   ),
+                             function(w) colMeans(w[,3:(ncol(w)-2)])
                              )
 
       # Reshape it transposing rows and columns and coercing it to data frame
       vSummaryData <- as.data.frame(t(vSummaryData))
 
-      # Add the activity as variable from the row names
-      vSummaryData$activity <- row.names(vSummaryData)
-      vSummaryData <- select(vSummaryData, activity, 1:(ncol(vSummaryData)-1))
+      # Add the activity and subject as variables from the row names split
+      # between activity and subject using the . as separator
+      vSummaryData$activity <- sapply(strsplit(row.names(vSummaryData),'\\.'), 
+                                      function(k) k[1])
+      vSummaryData$subject <- sapply(strsplit(row.names(vSummaryData),'\\.'), 
+                                      function(k) k[2])
+
+      vSummaryData <- select(vSummaryData, 
+                             activity, subject, 1:(ncol(vSummaryData)-2))
 
       # Write the Summary data frame into a CSV file
       write.csv(vSummaryData,'./SummaryData.csv', row.names = FALSE)
