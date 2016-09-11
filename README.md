@@ -48,7 +48,7 @@ Initially it has been checked if the required data set is already available, if 
 
 Having the original data set available, the data for the training has been loaded directly from the ZIP file.
 
-The data has been split in two data files, the training measurements *X_train.txt*, loaded into *vTrainDataSet* object, and the training activities *y_train.txt*, loaded into *vTrainActData* object.
+The data has been split in three data files, the training measurements *X_train.txt*, loaded into *vTrainDataSet* object, the training activities *y_train.txt*, loaded into *vTrainActData* object, and the training subjects *subject_train.txt*, loaded into *vTrainSubjData* object.
 
       vTrainSetFile <- unz(vZipPath, 'UCI HAR Dataset/train/X_train.txt')
       vTrainSetData <- read.table(vTrainSetFile)
@@ -56,11 +56,16 @@ The data has been split in two data files, the training measurements *X_train.tx
       vTrainActFile <- unz(vZipPath, 'UCI HAR Dataset/train/y_train.txt')
       vTrainActData <- read.table(vTrainActFile)
 
-After that, the training activities data set has been added to the training measurements as a new variable called *activity*.
+      vTrainSubjFile <- unz(vZipPath, 'UCI HAR Dataset/train/subject_train.txt')
+      vTrainSubjData <- read.table(vTrainSubjFile)
+
+After that, the training activity and subject data sets have been added to the training measurements as new variables called *activity* and *subject*.
 
       vTrainSetData$activity <- vTrainActData$V1
+      vTrainSetData$subject <- vTrainSubjData$V1
 
-Similar to to the training data, the test data has also been loaded directly from the ZIP file. The test measurements *X_test.txt* has been loaded into *vTestSetData* object, and the test activities *y_test.txt* has been loaded into *vTestActData* object.
+
+Similar to to the training data, the test data has also been loaded directly from the ZIP file. The test measurements *X_test.txt* has been loaded into *vTestSetData* object, the test activities *y_test.txt* has been loaded into *vTestActData* object, and the test subjects *subject_test.txt* into the *vTestSubjData* object.
 
       vTestSetFile <- unz(vZipPath, 'UCI HAR Dataset/test/X_test.txt')
       vTestSetData <- read.table(vTestSetFile)
@@ -68,11 +73,17 @@ Similar to to the training data, the test data has also been loaded directly fro
       vTestActFile <- unz(vZipPath, 'UCI HAR Dataset/test/y_test.txt')
       vTestActData <- read.table(vTestActFile)
 
-The test activities data set has also been added to the test measurements as a new variable called *activity*.
+      vTestSubjFile <- unz(vZipPath, 'UCI HAR Dataset/test/subject_test.txt')
+      vTestSubjData <- read.table(vTestSubjFile)
+
+
+The test activity and subject data sets have also been added to the test measurements as new variables called *activity* and *subject*.
 
       vTestSetData$activity <- vTestActData$V1
+      vTestSetData$subject <- vTestSubjData$V1
 
-At this point the training and test measurements are loaded, already with their respective activities. As the next step, they have been merged to create a new data set called *vMergedData*.
+
+At this point the training and test measurements are loaded, already with their respective activities and subjects. As the next step, they have been merged to create a new data set called *vMergedData*.
 
       vMergeData <- merge(vTrainSetData, vTestSetData, all=TRUE)
 
@@ -100,10 +111,10 @@ The first is supposed the allow it to be matched to the original variables names
             mutate(V1 = paste(rep('V',nrow(vFeatLblData)), vFeatLblData$V1)) %>%
             mutate(V1 = gsub(' ', '', V1))
 
-To extract the required variables from the merged data set, a vector called *vFeatRef* has been created with the element *activity*, the variable previously added, and all the features from the *vFeatLblData* variable *V1*, which contains the same standard as the variable names in the merged data set (V1, V2, V3, ....).
+To extract the required variables from the merged data set, a vector called *vFeatRef* has been created with the elements *activity* and *subject*, the variables previously added, plus all the features from the *vFeatLblData* variable *V1*, which contains the same standard as the variable names in the merged data set (V1, V2, V3, ....).
 
-      vFeatRef <- 'activity'
-      vFeatRef[2:(nrow(vFeatLblData)+1)] <- vFeatLblData$V1
+      vFeatRef <- c('activity', 'subject')
+      vFeatRef[3:(nrow(vFeatLblData)+2)] <- vFeatLblData$V1
 
 The second reshaping meant to allow the features names to be used as variable names for the measurements in the merged data set *vMergeData*. As the features names contain characteres which are not valid in variable names, the not valid characters have been removed from them.
 
@@ -114,10 +125,10 @@ The second reshaping meant to allow the features names to be used as variable na
                                        mutate(V2 = gsub('mean','Mean',V2)) %>%
                                        mutate(V2 = gsub('std','Std',V2))
 
-To accordingly name the variables in the merged data set later, a vector called *vFeatLbl* has been created with the element *activity*, to keep its name when renaming the variables, and all the features names from the *vFeatLblData* variable *V2*.
+To accordingly name the variables in the merged data set later, a vector called *vFeatLbl* has been created with the elements *activity* and *subject*, to keep their names when renaming the variables, plus all the features names from the *vFeatLblData* variable *V2*.
 
-      vFeatLbl <- 'activity'
-      vFeatLbl[2:(nrow(vFeatLblData)+1)] <- as.character(vFeatLblData$V2)      
+      vFeatLbl <- c('activity', 'subject')
+      vFeatLbl[3:(nrow(vFeatLblData)+2)] <- as.character(vFeatLblData$V2)      
 
 Being ready to extract the required variables from the merged data set, it has been done using the vector *vFeatRef* to subset the data frame *vMergedData*.
 
@@ -137,9 +148,9 @@ Merging the data frame *vMergedData* with the *vActLblData*, having variable *ac
       vMergeData <- merge(vMergeData, vActLblData, 
                     by.x='activity', by.y='V1', all=TRUE)
 
-After merging *vMergedData* with the *vActLblData*, the activities reference numbers and lables are in the merged data set. As result the variable *V2* from the *vMergedData* has been renamed to *V2.x* and the variable *V2* from the *vActLblData* has been renamed to *V2.y*.
+After merging *vMergedData* with the *vActLblData*, both the activity reference numbers and lables are in the merged data set. As result the variable *V2* from the *vMergedData* has been renamed to *V2.x* and the variable *V2* from the *vActLblData* has been renamed to *V2.y*.
 
-The activites reference numbers could be removed, as they are no longer required. The content from the variable *V2.y*, the activities labels, has been copied to the variable *activity*, then the variable *V2.y* has been removed, after that the variable *V2.x* had its name restored to *V2*.
+The activity reference numbers could be removed, as they are no longer required. The content from the variable *V2.y*, the activity labels, has been copied to the variable *activity*, then the variable *V2.y* has been removed, after that the variable *V2.x* had its name restored to *V2*.
 
       vMergeData <- vMergeData %>% mutate(activity = V2.y) %>% 
                     select(-V2.y) %>% rename(V2=V2.x)
@@ -148,7 +159,7 @@ The activites reference numbers could be removed, as they are no longer required
 
 Up to here all the required data is in the merged data set *vMergedData*. It is required now to name the variables in the data frame.
 
-Previously the measurements labels have been loaded from the features data file, filtered and stored into the vector *vFeatLbl*. It contains the element *activity* and the required features names, which are going to be used to rename the variables in the merged data set *vMergeData*.
+Previously the measurements labels have been loaded from the features data file, filtered and stored into the vector *vFeatLbl*. It contains the elements *activity*, *subject* and the required features names, which are going to be used to rename the variables in the merged data set *vMergeData*.
 
       names(vMergeData) <- vFeatLbl
 
@@ -156,20 +167,29 @@ Previously the measurements labels have been loaded from the features data file,
 
 Completing the chalenge, a second independent tidy data set has to be created contaning the average of each variable for each activity and each subject. It could be accomplished using the function *sapply()* together with the function *split()*.
 
-The function *split()* has been used to split the merged data set by *activity* and the *sapply()* function managed to calculate the mean, function *colMeans()*, for each variable, except for the *activity*, using a anonymous function. The result has been stored into *vSummaryData* object.
+The function *split()* has been used to split the merged data set by *activity* and *subject*, the *sapply()* function has managed to calculate the mean for each measurement, using a anonymous function with *colMeans()* applied to the columns 3 to the last column *(ncol(w)-2)*. The result has been stored into *vSummaryData* object.
 
-      vSummaryData <- sapply(split(vMergeData,vMergeData$activity),
-                             function(w) colMeans(w[,2:(ncol(w)-1)])
+      vSummaryData <- sapply(split(vMergeData,
+                                   list(vMergeData$activity,vMergeData$subject)
+                                   ),
+                             function(w) colMeans(w[,3:(ncol(w)-2)])
                              )
 
-But the last procedures had a side effects, the first one, the measurements, which originally were variables, became observations, and the activities became variables. The data set has been transposed to return to the original shape, using the funtion *t()*. The second side effect, the sapply returned a matrix, it has also been coerced back to a data frame, using the function *as.data.frame()*.
+But the last procedure had side effects, the first one, the measurements, which originally were variables, became observations, and the original observations, activity and subject, became variables. The data set has been transposed to return to the original shape, using the funtion *t()*. The second side effect, the sapply returned a matrix, then it has also been coerced back to a data frame, using the function *as.data.frame()*.
 
       vSummaryData <- as.data.frame(t(vSummaryData))
 
-The third side effect, as matrix, the activities have been defined as row names, and the variable *activity* has been lost. It has been created again in the reshaped *vSummaryData* data frame with the content row names, and to have it as the first variable the summary data set has been selected once more.
+The third side effect, the variables *activity* and *subject* have been lost. Each combination of *activity* and *subject* have been defined as row name and stored together in a single string like *'acticity'.'subject'*. To have them created again as separeted variables in the reshaped *vSummaryData* data frame, the row names have been split using the function *strsplit()* and each peace of it have been extracted with funtion *sapply()*.
 
-      vSummaryData$activity <- row.names(vSummaryData)
-      vSummaryData <- select(vSummaryData, activity, 1:(ncol(vSummaryData)-1))
+      vSummaryData$activity <- sapply(strsplit(row.names(vSummaryData),'\\.'), 
+                                      function(k) k[1])
+      vSummaryData$subject <- sapply(strsplit(row.names(vSummaryData),'\\.'), 
+                                      function(k) k[2])
+
+To have the variables *activity* and *subject* as the first variables, the summary data set has been selected once more.
+
+      vSummaryData <- select(vSummaryData, 
+                             activity, subject, 1:(ncol(vSummaryData)-2))
 
 #### Write the Summary Data Set into a file
 
