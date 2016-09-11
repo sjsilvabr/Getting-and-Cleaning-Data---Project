@@ -140,7 +140,7 @@ tidy_DataSet <- function(){
       vSummaryData <- select(vSummaryData, 
                              activity, subject, 1:(ncol(vSummaryData)-2))
 
-      # Write the Summary data frame into a CSV file
-      write.csv(vSummaryData,'./SummaryData.csv', row.names = FALSE)
+      # Write the Summary data frame into a TXT file
+      write.table(vSummaryData,'./SummaryData.txt', row.names = FALSE)
       
 }
